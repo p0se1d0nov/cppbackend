@@ -314,6 +314,8 @@ tags
 !.vscode/extensions.json
 !.vscode/*.code-snippets
 
+CMakePresets.json
+
 # Local History for Visual Studio Code
 .history/
 
