@@ -69,6 +69,17 @@ public:
 
     void StartGame(tcp::socket& socket, bool my_initiative) {
         // TODO: реализуйте самостоятельно
+        
+        while(true) {
+            my_field_.PrintDigitLine(std::cout);
+            for(int i = 0; i < my_field_.field_size(); ++i) {
+                my_field_.PrintLine(i);
+            }
+
+            if(my_initiative) {
+                
+            }
+        }
     }
 
 private:
@@ -106,7 +117,17 @@ private:
 void StartServer(const SeabattleField& field, unsigned short port) {
     SeabattleAgent agent(field);
 
-    // TODO: реализуйте самостоятельно
+    net::io_context io_context;
+    tcp::acceptor acceptor(io_context, tcp::endpoint(tcp::v4(), port));
+
+    boost::system::error_code ec;
+    tcp::socket socket{io_context};
+    acceptor.accept(socket, ec);
+
+    if(ec) {
+        std::cout << "Cannot accept connection" << std::endl;
+        return;
+    }
 
     agent.StartGame(socket, false);
 };
@@ -114,7 +135,21 @@ void StartServer(const SeabattleField& field, unsigned short port) {
 void StartClient(const SeabattleField& field, const std::string& ip_str, unsigned short port) {
     SeabattleAgent agent(field);
 
-    // TODO: реализуйте самостоятельно
+    boost::system::error_code ec;
+    auto endpoint = tcp::endpoint(net::ip::make_address(ip_str, ec), port);
+
+    if(ec) {
+        std::cout << "Wrong ip format" << std::endl;
+    }
+
+    net::io_context io_context;
+    tcp::socket socket{io_context};
+    socket.connect(endpoint, ec);
+
+    if(ec) {
+        std::cout << "Can't connect tot server" << std::endl;
+        return;
+    }
 
     agent.StartGame(socket, true);
 };
