@@ -46,7 +46,8 @@ StringResponse HandleRequest(StringRequest&& req) {
     };
 
     if(req.method() == boost::beast::http::verb::get) {
-        return text_response(http::status::ok, "Hello, "s + req.target().substr(1));
+        std::string name = req.target() == "/" ? "World" : std::string(req.target().substr(1));
+        return text_response(http::status::ok, "Hello, "s + name);
     }
     else if(req.method() == boost::beast::http::verb::head) {
         return text_response(http::status::ok, "");
