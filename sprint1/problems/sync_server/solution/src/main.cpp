@@ -11,7 +11,6 @@
 #include <string>
 #include <thread>
 #include <optional>
-#include <format>
 
 namespace net = boost::asio;
 using tcp = net::ip::tcp;
@@ -47,7 +46,7 @@ StringResponse HandleRequest(StringRequest&& req) {
     };
 
     if(req.method() == boost::beast::http::verb::get) {
-        return text_response(http::status::ok, std::format("Hello, {}"sv, req.target().substr(1)));
+        return text_response(http::status::ok, "Hello, "s + req.target().substr(1));
     }
     else if(req.method() == boost::beast::http::verb::head) {
         return text_response(http::status::ok, "");
