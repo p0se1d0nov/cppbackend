@@ -78,6 +78,7 @@ public:
     {
         while (true)
         {
+            system("clear");
             PrintFields();
 
             if (IsGameEnded())
