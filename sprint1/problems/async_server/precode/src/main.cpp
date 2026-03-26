@@ -62,9 +62,8 @@ namespace
             response.keep_alive(req.keep_alive());
             return response;
         }
-        else
         {
-            std::string body = "Invalid method.";
+            std::string body = "Invalid method";
             StringResponse response(http::status::method_not_allowed, req.version());
             response.set(http::field::content_type, ContentType::TEXT_HTML);
             response.set(http::field::allow, "GET, HEAD");
