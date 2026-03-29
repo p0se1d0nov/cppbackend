@@ -9,6 +9,7 @@
 #include "json_loader.h"
 #include "request_handler.h"
 
+using boost::asio::ip::tcp;
 using namespace std::literals;
 namespace net = boost::asio;
 
@@ -34,6 +35,7 @@ namespace
 
 int main(int argc, const char *argv[])
 {
+    const int PORT = 8080;
     if (argc != 2)
     {
         std::cerr << "Usage: game_server <game-config-json>"sv << std::endl;
@@ -61,11 +63,11 @@ int main(int argc, const char *argv[])
 
         // 5. Запустить обработчик HTTP-запросов, делегируя их обработчику запросов
         std::shared_ptr<void> server_keeper;
-        http_server::ServeHttp(ioc, {net::ip::make_address("127.0.0.1"), 8080}, [&handler](auto &&req, auto &&send)
+        http_server::ServeHttp(ioc, {tcp::v4(), PORT}, [&handler](auto &&req, auto &&send)
                                { handler(std::forward<decltype(req)>(req), std::forward<decltype(send)>(send)); }, server_keeper);
 
         // Эта надпись сообщает тестам о том, что сервер запущен и готов обрабатывать запросы
-        std::cout << "Server has started..."sv << std::endl;
+        std::cout << "Server has started at port "sv << PORT << std::endl;
 
         // 6. Запускаем обработку асинхронных операций
         ioc.run();
