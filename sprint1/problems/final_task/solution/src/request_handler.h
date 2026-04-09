@@ -3,6 +3,7 @@
 #include "model.h"
 
 #include <sstream>
+#include <cstring>
 #include <boost/json.hpp>
 
 namespace http_handler
@@ -11,6 +12,15 @@ namespace http_handler
     namespace beast = boost::beast;
     namespace http = beast::http;
     using namespace std::literals;
+
+    // Класс-хранилка для эндпоинтов API
+    class ApiEndpoints
+    {
+    public:
+        static constexpr const char *API_PREFIX = "/api/";
+        static constexpr const char *MAPS_ENDPOINT = "/api/v1/maps";
+        static constexpr const char *MAP_BY_ID_PREFIX = "/api/v1/maps/";
+    };
 
     // Вспомогательные функции для создания JSON ответов
     namespace
@@ -94,7 +104,7 @@ namespace http_handler
         std::string ExtractMapIdFromPath(const std::string &path)
         {
             // Ожидаем формат: /api/v1/maps/{map_id}
-            const std::string prefix = "/api/v1/maps/";
+            const std::string prefix = ApiEndpoints::MAP_BY_ID_PREFIX;
             if (path.size() > prefix.size() && path.substr(0, prefix.size()) == prefix)
             {
                 return path.substr(prefix.size());
@@ -141,10 +151,10 @@ namespace http_handler
             std::string path_str(path.begin(), path.end());
 
             // Проверяем, что это запрос к API
-            if (path_str.substr(0, 5) == "/api/")
+            if (path_str.substr(0, std::strlen(ApiEndpoints::API_PREFIX)) == ApiEndpoints::API_PREFIX)
             {
                 // Проверяем /api/v1/maps
-                if (path_str == "/api/v1/maps" && req.method() == http::verb::get)
+                if (path_str == ApiEndpoints::MAPS_ENDPOINT && req.method() == http::verb::get)
                 {
                     json::array maps_json;
                     for (const auto &map : game_.GetMaps())
@@ -161,7 +171,7 @@ namespace http_handler
                 }
 
                 // Проверяем /api/v1/maps/{id}
-                if (path_str.substr(0, 13) == "/api/v1/maps/" && req.method() == http::verb::get && path_str.size() > 13)
+                if (path_str.substr(0, std::strlen(ApiEndpoints::MAP_BY_ID_PREFIX)) == ApiEndpoints::MAP_BY_ID_PREFIX && req.method() == http::verb::get && path_str.size() > std::strlen(ApiEndpoints::MAP_BY_ID_PREFIX))
                 {
                     std::string map_id = ExtractMapIdFromPath(path_str);
 
