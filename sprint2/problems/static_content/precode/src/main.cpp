@@ -36,15 +36,16 @@ namespace
 int main(int argc, const char *argv[])
 {
     const int PORT = 8080;
-    if (argc != 2)
+    if (argc != 3)
     {
-        std::cerr << "Usage: game_server <game-config-json>"sv << std::endl;
+        std::cerr << "Usage: game_server <game-config-json> <static-root>"sv << std::endl;
         return EXIT_FAILURE;
     }
     try
     {
         // 1. Загружаем карту из файла и построить модель игры
         model::Game game = json_loader::LoadGame(argv[1]);
+        const std::string static_root = argv[2];
 
         // 2. Инициализируем io_context
         const unsigned num_threads = std::thread::hardware_concurrency();
@@ -59,7 +60,7 @@ int main(int argc, const char *argv[])
             } });
 
         // 4. Создаём обработчик HTTP-запросов и связываем его с моделью игры
-        http_handler::RequestHandler handler{game};
+        http_handler::RequestHandler handler{game, static_root};
 
         // 5. Запустить обработчик HTTP-запросов, делегируя их обработчику запросов
         std::shared_ptr<void> server_keeper;
@@ -67,7 +68,7 @@ int main(int argc, const char *argv[])
                                { handler(std::forward<decltype(req)>(req), std::forward<decltype(send)>(send)); }, server_keeper);
 
         // Эта надпись сообщает тестам о том, что сервер запущен и готов обрабатывать запросы
-        std::cout << "Server has started at port "sv << PORT << std::endl;
+        std::cout << "Server has started..." << std::endl;
 
         // 6. Запускаем обработку асинхронных операций
         ioc.run();
