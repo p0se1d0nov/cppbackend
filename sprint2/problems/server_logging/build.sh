@@ -1,0 +1,1 @@
+rm -rf ./build/* && conan install . --build=missing -s build_type=Debug -s compiler.libcxx=libstdc++11 -if=./build/ && cmake -D CMAKE_CXX_COMPILER=/usr/bin/g++-11 -S . -B ./build && cmake --build ./build
