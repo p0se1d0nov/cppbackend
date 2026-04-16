@@ -3,8 +3,8 @@ FROM gcc:11.3 AS build
 
 RUN apt update && \
     apt install -y \
-      python3-pip \
-      cmake \
+    python3-pip \
+    cmake \
     && \
     pip3 install conan==1.*
 
@@ -12,7 +12,7 @@ RUN apt update && \
 COPY conanfile.txt /app/
 RUN mkdir /app/build && cd /app/build && \
     conan install .. --build=missing -s build_type=Release -s compiler.libcxx=libstdc++11
-    # conan install .. --build=missing
+# conan install .. --build=missing
 
 # Папка data больше не нужна
 COPY ./src /app/src
@@ -36,6 +36,6 @@ COPY ./static /app/static
 COPY ./data /app/data
 
 # Запускаем игровой сервер
-ENTRYPOINT ["/app/game_server", "/app/data/config.json", "/app/static"]
+ENTRYPOINT ["/app/game_server", "--config-file", "/app/data/config.json", "--www-root", "/app/static"]
 
 EXPOSE 8080
