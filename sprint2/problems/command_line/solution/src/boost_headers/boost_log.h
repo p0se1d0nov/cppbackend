@@ -1,0 +1,9 @@
+#pragma once
+#include <boost/log/attributes.hpp>
+#include <boost/log/attributes/constant.hpp>
+#include <boost/log/core.hpp>
+#include <boost/log/expressions.hpp>
+#include <boost/log/trivial.hpp>
+#include <boost/log/utility/manipulators/add_value.hpp>
+#include <boost/log/utility/setup/common_attributes.hpp>
+#include <boost/log/utility/setup/console.hpp>
