@@ -24,9 +24,5 @@ CollectionResult TryCollectPoint(geom::Point2D a, geom::Point2D b, geom::Point2D
 
 // В задании на разработку тестов реализовывать следующую функцию не нужно -
 // она будет линковаться извне.
-/*
-std::vector<GatheringEvent> FindGatherEvents(const ItemGathererProvider& provider) {
-}
-*/
 
 }  // namespace collision_detector
