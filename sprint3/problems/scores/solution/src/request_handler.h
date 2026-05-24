@@ -835,7 +835,6 @@ void RequestHandler::HandleStaticRequest(http::request<Body, http::basic_fields<
         res.body() = std::move(body);
         res.prepare_payload();
         send(std::move(res));
-        }
     } catch (const std::exception& e) {
         MakeErrorResponse(std::forward<Send>(send),
                           http::status::internal_server_error,
