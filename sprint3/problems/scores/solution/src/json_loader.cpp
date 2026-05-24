@@ -8,8 +8,8 @@
 namespace json_loader {
 
 void LoadRoads(model::Map& map, const boost::json::object& map_obj) {
-    for (auto& road_val : map_obj.at("roads").as_array()) {
-        auto& road_obj = road_val.as_object();
+    for (const auto& road_val : map_obj.at("roads").as_array()) {
+        const auto& road_obj = road_val.as_object();
         if (road_obj.contains("x1")) {
             int x0 = road_obj.at("x0").as_int64();
             int y0 = road_obj.at("y0").as_int64();
@@ -25,8 +25,8 @@ void LoadRoads(model::Map& map, const boost::json::object& map_obj) {
 }
 
 void LoadBuildings(model::Map& map, const boost::json::object& map_obj) {
-    for (auto& building_val : map_obj.at("buildings").as_array()) {
-        auto& b = building_val.as_object();
+    for (const auto& building_val : map_obj.at("buildings").as_array()) {
+        const auto& b = building_val.as_object();
         int x = b.at("x").as_int64();
         int y = b.at("y").as_int64();
         int w = b.at("w").as_int64();
@@ -36,8 +36,8 @@ void LoadBuildings(model::Map& map, const boost::json::object& map_obj) {
 }
 
 void LoadOffices(model::Map& map, const boost::json::object& map_obj) {
-    for (auto& office_val : map_obj.at("offices").as_array()) {
-        auto& o = office_val.as_object();
+    for (const auto& office_val : map_obj.at("offices").as_array()) {
+        const auto& o = office_val.as_object();
         std::string office_id = boost::json::value_to<std::string>(o.at("id"));
         int x = o.at("x").as_int64();
         int y = o.at("y").as_int64();
@@ -56,8 +56,8 @@ void LoadLoot(model::Map& map, const boost::json::object& map_obj) {
     map.SetLootTypesCount(loot_arr.size());
     extra_data::ExtraDataRepository::GetInstance().SetLootTypes(map.GetId(), loot_arr);
     uint8_t type = 0;
-    for (auto& loot_val : loot_arr) {
-        auto& l = loot_val.as_object();
+    for (const auto& loot_val : loot_arr) {
+        const auto& l = loot_val.as_object();
         map.SetLootTypeValue(type++,l.at("value").as_int64());
     }
 }
@@ -74,12 +74,21 @@ model::Map LoadMap(const boost::json::object& map_obj,
     std::string name = boost::json::value_to<std::string>(map_obj.at("name"));
     model::Map map{model::Map::Id(std::move(id)), std::move(name)};
 
-    if (map_obj.contains("roads")) LoadRoads(map, map_obj);
-    if (map_obj.contains("buildings")) LoadBuildings(map, map_obj);
-    if (map_obj.contains("offices")) LoadOffices(map, map_obj);
+    if (map_obj.contains("roads")) {
+        LoadRoads(map, map_obj);
+    }
+    if (map_obj.contains("buildings")) {
+        LoadBuildings(map, map_obj);
+    }
+    if (map_obj.contains("offices")) {
+        LoadOffices(map, map_obj);
+    }
 
-    if (map_obj.contains("dogSpeed")) LoadDogSpeed(map, map_obj);
-    else map.SetDogSpeed(default_speed);
+    if (map_obj.contains("dogSpeed")) {
+        LoadDogSpeed(map, map_obj);
+    } else {
+        map.SetDogSpeed(default_speed);
+    }
 
     if (map_obj.contains("defaultBagCapacity")) {
         int cap = map_obj.at("defaultBagCapacity").get_uint64();
@@ -130,21 +139,18 @@ model::Game LoadGame(const std::filesystem::path& json_path, bool random_spawn) 
     std::chrono::milliseconds loot_period(5000);
     double loot_probability = 0.5;
     if (config.as_object().contains("lootGeneratorConfig")) {
-        auto& loot_cfg = config.at("lootGeneratorConfig").as_object();
+        const auto& loot_cfg = config.at("lootGeneratorConfig").as_object();
         double period_sec = loot_cfg.at("period").as_double();
         loot_probability = loot_cfg.at("probability").as_double();
         loot_period = std::chrono::milliseconds(static_cast<int64_t>(period_sec * 1000));
     }
 
-    // Генератор случайных чисел для LootGenerator
-    //static thread_local std::mt19937 rng(std::random_device{}());
-    //auto random_gen = [&rng]() { return std::uniform_real_distribution<double>(0.0, 1.0)(rng); };
     loot_gen::LootGenerator default_generator(loot_period, loot_probability);
 
     double default_speed = game.GetDefaultDogSpeed();
     auto maps_arr = config.as_object().at("maps").as_array();
-    for (auto& map_value : maps_arr) {
-        auto map_obj = map_value.as_object();
+    for (const auto& map_value : maps_arr) {
+        const auto map_obj = map_value.as_object();
         auto map = LoadMap(map_obj, default_speed, default_generator);
         game.AddMap(std::move(map));
     }

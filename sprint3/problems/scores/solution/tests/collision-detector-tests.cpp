@@ -52,10 +52,10 @@ TEST_CASE("One Dog One Item One Colision", "[collision]") {
     auto events = FindGatherEvents(provider);
 
     REQUIRE(events.size() == 1);
-    CHECK(events[0].item_id == 0);
-    CHECK(events[0].gatherer_id == 0);
-    CHECK_THAT(events[0].sq_distance, WithinAbs(0, EPS));
-    CHECK_THAT(events[0].time, WithinRel(0.5,EPS));
+    CHECK(events.at(0).item_id == 0);
+    CHECK(events.at(0).gatherer_id == 0);
+    CHECK_THAT(events.at(0).sq_distance, WithinAbs(0, EPS));
+    CHECK_THAT(events.at(0).time, WithinRel(0.5,EPS));
 }
 
 TEST_CASE("One Dog One Item No Colision", "[collision]") {
@@ -86,10 +86,10 @@ TEST_CASE("One Dog One Item Colision SmallContact", "[collision]") {
     auto events = FindGatherEvents(provider);
 
     REQUIRE(events.size() == 1);
-    CHECK(events[0].item_id == 0);
-    CHECK(events[0].gatherer_id == 0);
-    CHECK_THAT(events[0].sq_distance, WithinAbs(0, EPS));
-    CHECK_THAT(events[0].time, WithinRel(1,EPS));  //Сомнительно
+    CHECK(events.at(0).item_id == 0);
+    CHECK(events.at(0).gatherer_id == 0);
+    CHECK_THAT(events.at(0).sq_distance, WithinAbs(0, EPS));
+    CHECK_THAT(events.at(0).time, WithinRel(1,EPS));  //Сомнительно
 }
 
 TEST_CASE("One Dog One Item ColisionAtStart", "[collision]") {
@@ -100,10 +100,10 @@ TEST_CASE("One Dog One Item ColisionAtStart", "[collision]") {
     auto events = FindGatherEvents(provider);
 
     REQUIRE(events.size() == 1);
-    CHECK(events[0].item_id == 0);
-    CHECK(events[0].gatherer_id == 0);
-    CHECK_THAT(events[0].sq_distance, WithinAbs(0, EPS));
-    CHECK_THAT(events[0].time, WithinRel(0,EPS));  //Сомнительно
+    CHECK(events.at(0).item_id == 0);
+    CHECK(events.at(0).gatherer_id == 0);
+    CHECK_THAT(events.at(0).sq_distance, WithinAbs(0, EPS));
+    CHECK_THAT(events.at(0).time, WithinRel(0,EPS));  //Сомнительно
 }
 
 TEST_CASE("One Dog One Item NoColision SmallDistance", "[collision]") {
@@ -129,20 +129,20 @@ TEST_CASE("One Dog Three Item Tree Colision", "[collision]") {
 
     REQUIRE(events.size() == 3);
 
-    CHECK(events[0].item_id == 0);
-    CHECK(events[0].gatherer_id == 0);
-    CHECK_THAT(events[0].sq_distance, WithinAbs(0,EPS));
-    CHECK_THAT(events[0].time, WithinRel(0,EPS));
+    CHECK(events.at(0).item_id == 0);
+    CHECK(events.at(0).gatherer_id == 0);
+    CHECK_THAT(events.at(0).sq_distance, WithinAbs(0,EPS));
+    CHECK_THAT(events.at(0).time, WithinRel(0,EPS));
 
-    CHECK(events[1].item_id == 1);
-    CHECK(events[1].gatherer_id == 0);
-    CHECK_THAT(events[1].sq_distance, WithinAbs(0, EPS));
-    CHECK_THAT(events[1].time, WithinRel(0.5,EPS));
+    CHECK(events.at(1).item_id == 1);
+    CHECK(events.at(1).gatherer_id == 0);
+    CHECK_THAT(events.at(1).sq_distance, WithinAbs(0, EPS));
+    CHECK_THAT(events.at(1).time, WithinRel(0.5,EPS));
 
-    CHECK(events[2].item_id == 2);
-    CHECK(events[2].gatherer_id == 0);
-    CHECK_THAT(events[2].sq_distance, WithinAbs(0, EPS));
-    CHECK_THAT(events[2].time, WithinRel(1,EPS));
+    CHECK(events.at(2).item_id == 2);
+    CHECK(events.at(2).gatherer_id == 0);
+    CHECK_THAT(events.at(2).sq_distance, WithinAbs(0, EPS));
+    CHECK_THAT(events.at(2).time, WithinRel(1,EPS));
 }
 
 TEST_CASE("One Dog OneItem NoEnoughWigth", "[collision]") {
@@ -190,15 +190,15 @@ TEST_CASE("Two Dog One Item Two Colision", "[collision]") {
 
     REQUIRE(events.size() == 2);
 
-    CHECK(events[0].item_id == 0);
-    CHECK(events[0].gatherer_id == 1);
-    CHECK_THAT(events[0].sq_distance, WithinAbs(0,EPS));
-    CHECK_THAT(events[0].time, WithinRel(0.25,EPS));
+    CHECK(events.at(0).item_id == 0);
+    CHECK(events.at(0).gatherer_id == 1);
+    CHECK_THAT(events.at(0).sq_distance, WithinAbs(0,EPS));
+    CHECK_THAT(events.at(0).time, WithinRel(0.25,EPS));
 
-    CHECK(events[1].item_id == 0);
-    CHECK(events[1].gatherer_id == 0);
-    CHECK_THAT(events[1].sq_distance, WithinAbs(0,EPS));
-    CHECK_THAT(events[1].time, WithinRel(0.5,EPS));
+    CHECK(events.at(1).item_id == 0);
+    CHECK(events.at(1).gatherer_id == 0);
+    CHECK_THAT(events.at(1).sq_distance, WithinAbs(0,EPS));
+    CHECK_THAT(events.at(1).time, WithinRel(0.5,EPS));
 }
 
 TEST_CASE("Two Dog TWO Item Two Colision", "[collision]") {
@@ -221,15 +221,15 @@ TEST_CASE("Two Dog TWO Item Two Colision", "[collision]") {
 
     REQUIRE(events.size() == 2);
 
-    CHECK(events[0].item_id == 0);
-    CHECK(events[0].gatherer_id == 0);
-    CHECK_THAT(events[0].sq_distance, WithinAbs(0,EPS));
-    CHECK_THAT(events[0].time, WithinRel(0.5,EPS));
+    CHECK(events.at(0).item_id == 0);
+    CHECK(events.at(0).gatherer_id == 0);
+    CHECK_THAT(events.at(0).sq_distance, WithinAbs(0,EPS));
+    CHECK_THAT(events.at(0).time, WithinRel(0.5,EPS));
 
-    CHECK(events[1].item_id == 1);
-    CHECK(events[1].gatherer_id == 1);
-    CHECK_THAT(events[1].sq_distance, WithinAbs(0,EPS));
-    CHECK_THAT(events[1].time, WithinRel(0.5,EPS));
+    CHECK(events.at(1).item_id == 1);
+    CHECK(events.at(1).gatherer_id == 1);
+    CHECK_THAT(events.at(1).sq_distance, WithinAbs(0,EPS));
+    CHECK_THAT(events.at(1).time, WithinRel(0.5,EPS));
 }
 
 TEST_CASE("zero movement ignored", "[collision]") {
@@ -247,8 +247,8 @@ TEST_CASE(" diagonal movement", "[collision]") {
     auto events = FindGatherEvents(provider);
     REQUIRE(events.size() == 1);
     // Расстояние от точки до прямой (y=x) равно 0, проекция в середине => время 0.5
-    CHECK_THAT(events[0].time, WithinRel(0.5, EPS));
-    CHECK_THAT(events[0].sq_distance, WithinAbs(0.0, EPS));
+    CHECK_THAT(events.at(0).time, WithinRel(0.5, EPS));
+    CHECK_THAT(events.at(0).sq_distance, WithinAbs(0.0, EPS));
 }
 
 TEST_CASE("different wight", "[collision]") {
@@ -258,8 +258,8 @@ TEST_CASE("different wight", "[collision]") {
     TestProvider provider({item}, {gatherer});
     auto events = FindGatherEvents(provider);
     REQUIRE(events.size() == 1);
-    CHECK_THAT(events[0].sq_distance, WithinRel(2.25, EPS)); // (1.5)^2 = 2.25
-    CHECK_THAT(events[0].time, WithinRel(0.5, EPS));
+    CHECK_THAT(events.at(0).sq_distance, WithinRel(2.25, EPS)); // (1.5)^2 = 2.25
+    CHECK_THAT(events.at(0).time, WithinRel(0.5, EPS));
 }
 
 

@@ -56,10 +56,9 @@ public:
         if (IsHorizontal()) {
             std::uniform_real_distribution<double> dist(std::min(start_.x, end_.x), std::max(start_.x, end_.x));
             return Position{dist(gen), static_cast<double>(start_.y)};
-        } else {
-            std::uniform_real_distribution<double> dist(std::min(start_.y, end_.y), std::max(start_.y, end_.y));
-            return Position{static_cast<double>(start_.x), dist(gen)};
         }
+        std::uniform_real_distribution<double> dist(std::min(start_.y, end_.y), std::max(start_.y, end_.y));
+        return Position{static_cast<double>(start_.x), dist(gen)};
     }
 
 private:

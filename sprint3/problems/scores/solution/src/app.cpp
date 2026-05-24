@@ -118,10 +118,7 @@ const std::vector<model::Loot>& Application::GetLoot(const std::string& token) c
 
 boost::json::array Application::GetLootTypesForMap(const model::Map::Id& map_id) {
     const auto* loot_types = extra_data::ExtraDataRepository::GetInstance().GetLootTypes(map_id);
-    if (loot_types) {
-        return *loot_types;
-    }
-    return boost::json::array();
+    return loot_types ? *loot_types : boost::json::array();
 }
 
 

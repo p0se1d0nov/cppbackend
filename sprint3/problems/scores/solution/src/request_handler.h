@@ -103,9 +103,10 @@ public:
 
     template <typename Body, typename Allocator, typename Send>
     void operator()(http::request<Body, http::basic_fields<Allocator>>&& req, Send&& send) {
+        constexpr std::string_view API_PREFIX = "/api/";
         try {
             std::string_view target = req.target();
-            if (target.starts_with("/api/")) {
+            if (target.starts_with(API_PREFIX)) {
                 unsigned version = req.version();
                 auto handler = [self = shared_from_this(),
                                 req = std::move(req),
@@ -168,6 +169,13 @@ template <typename Body, typename Allocator, typename Send>
 void RequestHandler::HandleApiRequest(http::request<Body, http::basic_fields<Allocator>>&& req, Send&& send) {
     std::string_view target = req.target();
     constexpr std::string_view V1_PREFIX = "/api/v1";
+    constexpr std::string_view MAPS_ENDPOINT = "/maps";
+    constexpr std::string_view MAPS_PREFIX = "/maps/";
+    constexpr std::string_view GAME_JOIN_ENDPOINT = "/game/join";
+    constexpr std::string_view GAME_PLAYERS_ENDPOINT = "/game/players";
+    constexpr std::string_view GAME_STATE_ENDPOINT = "/game/state";
+    constexpr std::string_view GAME_ACTION_ENDPOINT = "/game/player/action";
+    constexpr std::string_view GAME_TICK_ENDPOINT = "/game/tick";
 
     if (!target.starts_with(V1_PREFIX)) {
         return MakeErrorResponse(std::forward<Send>(send),
@@ -178,7 +186,7 @@ void RequestHandler::HandleApiRequest(http::request<Body, http::basic_fields<All
     }
     target.remove_prefix(V1_PREFIX.size());
 
-    if (target == "/maps") {
+    if (target == MAPS_ENDPOINT) {
         if (req.method() != http::verb::get) {
             return SendMethodNotAllowed(std::forward<Send>(send), "GET",
                                         "Only GET method is expected", req.version());
@@ -192,36 +200,36 @@ void RequestHandler::HandleApiRequest(http::request<Body, http::basic_fields<All
                                 http::status::ok, body, req.version());
     }
 
-    if (target.starts_with("/maps/")) {
+    if (target.starts_with(MAPS_PREFIX)) {
         HandleMapRequest(std::move(req), std::forward<Send>(send));
         return;
     }
 
-    if (target == "/game/join") {
+    if (target == GAME_JOIN_ENDPOINT) {
         if (req.method() != http::verb::post) {
             return SendMethodNotAllowed(std::forward<Send>(send), "POST",
                                         "Only POST method is expected", req.version());
         }
         HandleJoinRequest(std::move(req), std::forward<Send>(send));
-    } else if (target == "/game/players") {
+    } else if (target == GAME_PLAYERS_ENDPOINT) {
         if (req.method() != http::verb::get && req.method() != http::verb::head) {
             return SendMethodNotAllowed(std::forward<Send>(send), "GET, HEAD",
                                         "Invalid method", req.version());
         }
         HandlePlayersRequest(std::move(req), std::forward<Send>(send));
-    } else if (target == "/game/state") {
+    } else if (target == GAME_STATE_ENDPOINT) {
         if (req.method() != http::verb::get && req.method() != http::verb::head) {
             return SendMethodNotAllowed(std::forward<Send>(send), "GET, HEAD",
                                         "Invalid method", req.version());
         }
         HandleGameStateRequest(std::move(req), std::forward<Send>(send));
-    } else if (target == "/game/player/action") {
+    } else if (target == GAME_ACTION_ENDPOINT) {
         if (req.method() != http::verb::post) {
             return SendMethodNotAllowed(std::forward<Send>(send), "POST",
                                         "Invalid method", req.version());
         }
         HandlePlayerActionRequest(std::move(req), std::forward<Send>(send));
-    } else if (target == "/game/tick") {
+    } else if (target == GAME_TICK_ENDPOINT) {
         if (req.method() != http::verb::post) {
             return SendMethodNotAllowed(std::forward<Send>(send), "POST",
                                         "Invalid method", req.version());
@@ -241,6 +249,7 @@ template <typename Body, typename Allocator, typename Send>
 void RequestHandler::HandleMapRequest(http::request<Body, http::basic_fields<Allocator>>&& req, Send&& send) {
     std::string_view target = req.target();
     constexpr std::string_view V1_PREFIX = "/api/v1";
+    constexpr std::string_view MAPS_PREFIX = "/maps/";
     if (!target.starts_with(V1_PREFIX)) {
         return MakeErrorResponse(std::forward<Send>(send),
                                  http::status::bad_request,
@@ -250,7 +259,7 @@ void RequestHandler::HandleMapRequest(http::request<Body, http::basic_fields<All
     }
     target.remove_prefix(V1_PREFIX.size());
 
-    if (!target.starts_with("/maps/")) {
+    if (!target.starts_with(MAPS_PREFIX)) {
         return MakeErrorResponse(std::forward<Send>(send),
                                  http::status::bad_request,
                                  "badRequest",
@@ -263,7 +272,7 @@ void RequestHandler::HandleMapRequest(http::request<Body, http::basic_fields<All
                                     "Only GET and HEAD are expected", req.version());
     }
 
-    std::string_view id_str = target.substr(6); // после "/maps/"
+    std::string_view id_str = target.substr(MAPS_PREFIX.size());
     if (id_str.empty()) {
         return MakeErrorResponse(std::forward<Send>(send),
                                  http::status::bad_request,
@@ -750,11 +759,10 @@ void RequestHandler::HandleStaticRequest(http::request<Body, http::basic_fields<
             if (is_head) {
                 return SendHeadResponse(std::forward<Send>(send), http::status::bad_request,
                                         req.version(), "text/plain");
-            } else {
-                return MakePlainTextResponse(std::forward<Send>(send),
-                                             http::status::bad_request,
-                                             "Invalid path", req.version());
             }
+            return MakePlainTextResponse(std::forward<Send>(send),
+                                         http::status::bad_request,
+                                         "Invalid path", req.version());
         }
         std::error_code ec;
         fs::file_status status = fs::status(full_path, ec);
@@ -774,61 +782,59 @@ void RequestHandler::HandleStaticRequest(http::request<Body, http::basic_fields<
                 if (is_head) {
                     return SendHeadResponse(std::forward<Send>(send), http::status::not_found,
                                             req.version(), "text/plain");
-                } else {
-                    return MakePlainTextResponse(std::forward<Send>(send),
-                                                 http::status::not_found,
-                                                 "File not found", req.version());
                 }
+                return MakePlainTextResponse(std::forward<Send>(send),
+                                             http::status::not_found,
+                                             "File not found", req.version());
             }
         } else if (!fs::is_regular_file(status)) {
             if (is_head) {
                 return SendHeadResponse(std::forward<Send>(send), http::status::not_found,
                                         req.version(), "text/plain");
-            } else {
-                return MakePlainTextResponse(std::forward<Send>(send),
-                                             http::status::not_found,
-                                             "File not found", req.version());
             }
+            return MakePlainTextResponse(std::forward<Send>(send),
+                                         http::status::not_found,
+                                         "File not found", req.version());
         }
         uintmax_t file_size = fs::file_size(full_path, ec);
         if (ec) {
             if (is_head) {
                 return SendHeadResponse(std::forward<Send>(send), http::status::not_found,
                                         req.version(), "text/plain");
-            } else {
-                return MakePlainTextResponse(std::forward<Send>(send),
-                                             http::status::not_found,
-                                             "File not found", req.version());
             }
+            return MakePlainTextResponse(std::forward<Send>(send),
+                                         http::status::not_found,
+                                         "File not found", req.version());
         }
         std::string mime = GetMimeType(full_path);
         if (is_head) {
             SendHeadResponse(std::forward<Send>(send), http::status::ok,
                              req.version(), mime, file_size);
-        } else {
-            std::ifstream file(full_path, std::ios::binary);
+            return;
+        }
+        std::ifstream file(full_path, std::ios::binary);
+        if (!file) {
+            return MakePlainTextResponse(std::forward<Send>(send),
+                                         http::status::not_found,
+                                         "File not found", req.version());
+        }
+        std::string body;
+        try {
+            body.resize(file_size);
+            file.read(body.data(), file_size);
             if (!file) {
-                return MakePlainTextResponse(std::forward<Send>(send),
-                                             http::status::not_found,
-                                             "File not found", req.version());
+                throw std::runtime_error("Failed to read file");
             }
-            std::string body;
-            try {
-                body.resize(file_size);
-                file.read(body.data(), file_size);
-                if (!file) {
-                    throw std::runtime_error("Failed to read file");
-                }
-            } catch (const std::system_error& e) {
-                return MakePlainTextResponse(std::forward<Send>(send),
-                                             http::status::internal_server_error,
-                                             "File system error", req.version());
-            }
-            http::response<http::string_body> res{http::status::ok, req.version()};
-            res.set(http::field::content_type, mime);
-            res.body() = std::move(body);
-            res.prepare_payload();
-            send(std::move(res));
+        } catch (const std::system_error& e) {
+            return MakePlainTextResponse(std::forward<Send>(send),
+                                         http::status::internal_server_error,
+                                         "File system error", req.version());
+        }
+        http::response<http::string_body> res{http::status::ok, req.version()};
+        res.set(http::field::content_type, mime);
+        res.body() = std::move(body);
+        res.prepare_payload();
+        send(std::move(res));
         }
     } catch (const std::exception& e) {
         MakeErrorResponse(std::forward<Send>(send),
