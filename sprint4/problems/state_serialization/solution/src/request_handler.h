@@ -92,9 +92,9 @@ public:
     explicit RequestHandler(app::Application& app,
                             fs::path static_dir,
                             Strand api_strand, bool auto_tick_enabled)
-        : app_(app)
-        , static_dir_(fs::weakly_canonical(static_dir))
+        : static_dir_(fs::weakly_canonical(static_dir))
         , api_strand_(api_strand)
+        , app_(app)
         , auto_tick_enabled_ (auto_tick_enabled)
     {}
 
